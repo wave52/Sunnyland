@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour
     private Animator anim;
     private bool isHurt;
 
+    public AudioSource jumpAudio, hurtAudio, scoreAudio;
     public Collider2D coll;
     public Collider2D disColl;
     public Transform headCheck;
@@ -55,6 +56,7 @@ public class PlayerController : MonoBehaviour
         // 角色跳跃
         if (Input.GetButtonDown("Jump") && coll.IsTouchingLayers(ground))
         {
+            jumpAudio.Play();
             rb.velocity = new Vector2(rb.velocity.x, jumpforce * Time.fixedDeltaTime);
             anim.SetBool("jumping", true);
         }
@@ -114,6 +116,7 @@ public class PlayerController : MonoBehaviour
     {
         if(collision.tag == "Collection")
         {
+            scoreAudio.Play();
             Destroy(collision.gameObject);
             Score += 1;
             Number.text = Score.ToString();
@@ -126,18 +129,23 @@ public class PlayerController : MonoBehaviour
 
         if (collision.gameObject.tag == "Enemy")
         {
+            Enemy enemy = collision.gameObject.GetComponent<Enemy>();
             if (anim.GetBool("falling"))
             {
-                Destroy(collision.gameObject);
+                enemy.JumpOn();
+                rb.velocity = new Vector2(rb.velocity.x, jumpforce * Time.fixedDeltaTime);
+                anim.SetBool("jumping", true);
             }
             else if (transform.position.x < collision.gameObject.transform.position.x)
             {
                 rb.velocity = new Vector2(-3, rb.velocity.y);
+                hurtAudio.Play();
                 isHurt = true;
             }
             else if (transform.position.x > collision.gameObject.transform.position.x)
             {
                 rb.velocity = new Vector2(3, rb.velocity.y);
+                hurtAudio.Play();
                 isHurt = true;
             }
         }
